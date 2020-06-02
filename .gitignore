@@ -38,4 +38,5 @@ proj.android
 
 # Build files
 win32-build
+proj.win32
 cocos2d
