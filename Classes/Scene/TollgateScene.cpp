@@ -8,6 +8,7 @@
 #include "Entity\Weapons\GoldenSword.h"
 #include "Entity/Weapons/Shotgun.h"
 #include "GameData.h"
+#include "Scene/DeathScene.h"
 
 USING_NS_CC;
 
@@ -130,7 +131,7 @@ void TollgateScene::pauseEvent(Ref*, TouchEventType type)
 		background->begin();
 		this->visit();
 		background->end();
-		Director::getInstance()->pushScene(PauseScene::createScene(background));
+		Director::getInstance()->pushScene(DeathScene::createScene(background, m_player));
 		break;
 	}
 }
@@ -184,7 +185,7 @@ void TollgateScene::loadMonsters()
 	//初始化工作
 	m_monsterMgr->bindMap(m_map);
 	m_monsterMgr->bindPlayer(static_cast<Entity*>(this->m_player));
-	m_map->addChild(m_monsterMgr, 2);
+	m_map->addChild(m_monsterMgr, 1);
 }
 
 void TollgateScene::loadListeners()
@@ -199,11 +200,10 @@ void TollgateScene::loadListeners()
 		switch (key)
 		{
 		case EventKeyboard::KeyCode::KEY_E:
-			GameData::setCoinNum(GameData::getCoinNum() + 1);
 			if (ccpDistance(m_player->getPosition(), m_map->getChest()->getPosition()) < 20.0f && m_map->getChest()->isVisible())
 			{
 				m_map->getChest()->setVisible(false);
-				m_map->getChest()->setWeapon(rand() % 3 + 1);
+				m_map->getChest()->setWeapon(rand() % 4 + 1);
 				std::string str = m_map->getChest()->getWeapon()->getWeaponName();
 				m_player->setWeapon(str);
 				m_player->determineWhichWeapon();
@@ -220,7 +220,7 @@ void TollgateScene::loadListeners()
 					if (GameData::getCoinNum() >= m_map->getShop()->getPrice())
 					{
 						GameData::setCoinNum(GameData::getCoinNum() - 20);
-						m_map->getShop()->setWeapon(rand() % 3 + 1);
+						m_map->getShop()->setWeapon(rand() % 4 + 1);
 						std::string str = m_map->getChest()->getWeapon()->getWeaponName();
 						m_player->setWeapon(str);
 						m_player->determineWhichWeapon();
@@ -324,21 +324,6 @@ void TollgateScene::updateMiniMap(TMXTiledMap* miniMap)
 	GameData::setLastRoomCoord(Vec2(roomCoord.y, roomCoord.x));
 }
 
-void TollgateScene::updateCoinNum()
-{
-	//auto visibleSize = Director::getInstance()->getVisibleSize();
-	//auto n = this->getChildByTag(101);
-	//if (n)
-	//{
-	//	this->removeChildByTag(101);
-	//}
-	//auto num = __String::createWithFormat("%d", GameData::getCoinNum());
-	//auto coinLabel = Label::createWithTTF(num->getCString(), "fonts/arial.ttf", 30);
-
-	//coinLabel->setPosition(Vec2(visibleSize.width - 50, visibleSize.height - 600));
-	//this->addChild(coinLabel, 20, 101);
-}
-
 void TollgateScene::update(float dt)
 {
 	(m_cdBar)->setPercent(m_player->getiNowCD() /
@@ -363,8 +348,6 @@ void TollgateScene::update(float dt)
 	auto wall = m_map->getWall();
 	auto roadPairs = m_map->getRoadPairs();
 	updateMiniMap(miniMap);
-
-	updateCoinNum();
 
 	auto roomCoord = m_map->roomCoordFromPosition(playerPos);//鎴块棿鍧愭爣
 	auto roomNum = roomCoord.x * 5 + roomCoord.y;//鎴块棿搴忓彿
@@ -535,6 +518,26 @@ void TollgateScene::update(float dt)
 			if (bullet->isCollideWith(woodwall))
 			{
 				woodwall->hit(bullet->getDamage());
+			}
+		}
+	}
+
+	for (auto monster : monsters)
+	{
+		Weapon* weapon = monster->getMonsterWeapon();
+		if (weapon)
+		{
+			if (weapon->isCloseWeapon())
+			{
+				auto close_weapon = dynamic_cast<CloseWeapon*>(weapon);
+				if (!close_weapon->isHit())
+				{
+					if (close_weapon->isCollideWith(m_player))
+					{
+						m_player->hit(close_weapon->getDamage());
+					}
+				}
+				close_weapon->setIsHit(true);
 			}
 		}
 	}
