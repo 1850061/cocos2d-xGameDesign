@@ -204,6 +204,7 @@ void PlayerController::playerOperate()const
 	if (m_player->getIsInSkill())
 	{
 		m_player->setiNowSkillDuration(m_player->getiNowSkillDuration() + 1);
+		m_player->skillDuration();
 		if (m_player->getiNowSkillDuration() == m_player->getiTotalSkillDuration())
 			m_player->skillEnd();
 	}

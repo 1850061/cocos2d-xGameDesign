@@ -27,6 +27,7 @@ bool Ranger::init()
 	m_iTotalSkillDuration = 1;
 	m_numTotalWeapon = 3;
 	m_numWeapon = 0;
+	m_numHasWeapon = 0;
 	m_numLongRange = 0;
 	m_isInSkill = false;
 	return true;
@@ -64,6 +65,8 @@ void Ranger::skill()
 void Ranger::skillEnd()
 {
 	m_isInSkill = false;
+	m_skillDirectionX = 0;
+	m_skillDirectionY = 0;
 }
 
 void Ranger::die()

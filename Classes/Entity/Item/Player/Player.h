@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <algorithm>
 #include <vector>
 #include <string>
@@ -61,14 +61,16 @@ public:
 
 	inline bool getIsInSkill() const { return m_isInSkill; }
 
-	void setWeapon(std::string& str);
+	void setWeapon(std::string& str,bool isUpgrate=false);
 	void chooseWeapon();
+	void chooseAbondonWeapon();
 	void determineWhichWeapon();
 	void loadLongRangeListener();
 	void loadCloseWeaponListener();
 	void resetWeapon();
 	void changeWeapon();
 	int findWhichLongRange()const;
+	void abandonWeapon();
 
 	void hit(int damage);
 	void mpDepletion(int mpDe);
@@ -132,15 +134,19 @@ protected:
 
 	LongRange* m_longRange = NULL;
 	CloseWeapon* m_close = NULL;
+	LongRange* m_longRangeAbondon = NULL;
+	CloseWeapon* m_closeAbondon = NULL;
 	EventListenerTouchOneByOne* m_listener;
 	EventListenerMouse* m_mouseMove;
 	std::array <std::string,10> m_weapons;
-	std::array <LongRange*, 5> m_longRanges = {NULL};
+	std::array <bool, 10> m_isUpgrate{ false };
+	std::array <LongRange*, 5> m_longRanges{ NULL };
 	int m_numWeapon;
+	int m_numHasWeapon;
 	int m_numTotalWeapon;
 	int m_numLongRange;
 
-	bool m_is_attacking = false;
+	bool m_is_attacking;
 	bool m_is_close_weapon_now;
 private:
 	bool m_leftSide = false;

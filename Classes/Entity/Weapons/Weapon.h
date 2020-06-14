@@ -29,9 +29,11 @@ public:
 	virtual void upgrade();
 	virtual bool isCloseWeapon()const;
 	const std::string& getWeaponName() { return m_weaponName; }
+	inline bool getIsUpgarte() const { return isUpgrate; }
 protected:
 	int m_power_cost;
 	int m_range;
+	bool isUpgrate = false;
 	float m_crit_rate;
 	float m_attack_speed;
 	std::string m_weaponName = "none";

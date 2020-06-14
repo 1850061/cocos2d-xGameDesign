@@ -1,4 +1,5 @@
-ï»¿#include "Entity/Item/Player/Player.h"
+#include "Entity/Item/Player/Player.h"
+#include "Scene/TollgateScene.h"
 #include "Entity/Weapons/CloseWeapon.h"
 #include "Entity\Weapons\Shotgun.h"
 #include "Entity\Weapons\RPG.h"
@@ -136,19 +137,101 @@ void Player::changeWeapon()
 {
 	m_numWeapon--;
 	if (m_numWeapon == 0)
-		m_numWeapon = m_numTotalWeapon;
+		m_numWeapon = m_numHasWeapon;
 	int numLongRange = 0, numCloseWeapon = 0;
 	determineWhichWeapon();
 }
 
 
-void Player::setWeapon(std::string& str)
+void Player::chooseAbondonWeapon()
 {
-	if (m_numWeapon < m_numTotalWeapon)
+	m_longRangeAbondon = NULL;
+	m_closeAbondon = NULL;
+	if (m_weapons[m_numWeapon - 1] == "CandyGun!")
 	{
-		m_numWeapon++;
+		m_closeAbondon = NULL;
+		m_longRangeAbondon = CandyGun::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRangeAbondon->upgrade();
 	}
-	m_weapons[m_numWeapon - 1] = str;
+	else if (m_weapons[m_numWeapon - 1] == "GoldenSword!")
+	{
+		m_longRangeAbondon = NULL;
+		m_closeAbondon = GoldenSword::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_closeAbondon->upgrade();
+	}
+	else if (m_weapons[m_numWeapon - 1] == "Fist_of_Heaven")
+	{
+		m_closeAbondon = NULL;
+		m_longRangeAbondon = RPG::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRangeAbondon->upgrade();
+	}
+	else if (m_weapons[m_numWeapon - 1] == "Rifle&Shotgun")
+	{
+		m_closeAbondon = NULL;
+		m_longRangeAbondon = Shotgun::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRangeAbondon->upgrade();
+	}
+	else if (m_weapons[m_numWeapon - 1] == "Pistol")
+	{
+		m_closeAbondon = NULL;
+		m_longRangeAbondon = Pistol::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRangeAbondon->upgrade();
+	}
+}
+
+void Player::abandonWeapon()
+{
+	chooseAbondonWeapon();
+	if (m_closeAbondon == NULL && m_longRangeAbondon != NULL)
+	{
+		if (m_rightSide)
+			m_longRangeAbondon->setPosition(15, 0);
+		else
+			m_longRangeAbondon->setPosition(-15, 0);
+		m_map->addChild(m_longRangeAbondon,100);
+	}
+	else if (m_longRangeAbondon == NULL && m_closeAbondon != NULL)
+	{
+		if (m_rightSide)
+			m_closeAbondon->setPosition(getTagPosition());
+		else
+			m_closeAbondon->setPosition(getTagPosition());
+		m_closeAbondon->bindMap(m_map);
+		m_map->addChild(m_closeAbondon,3,200);
+		//this->addChild(m_closeAbondon);
+		
+	}
+}
+
+void Player::setWeapon(std::string& str,bool isUpgrate)
+{
+	for (int i = 0; i < m_numHasWeapon; i++)
+	{
+		if (str == m_weapons[i] && m_isUpgrate[i] == false)
+		{
+			m_isUpgrate[i] = true;
+			m_numWeapon = i + 1;
+			return;
+		}
+	}
+	if (m_numHasWeapon < m_numTotalWeapon)
+	{
+		m_numHasWeapon++;
+		m_numWeapon = m_numHasWeapon;
+		m_weapons[m_numWeapon - 1] = str;
+		m_isUpgrate[m_numWeapon - 1] = isUpgrate;
+	}
+	else
+	{
+		abandonWeapon();
+		m_weapons[m_numWeapon - 1] = str;
+		m_isUpgrate[m_numWeapon - 1] = isUpgrate;
+	}
 }
 
 void Player::resetWeapon()
@@ -175,6 +258,8 @@ void Player::chooseWeapon()
 	{
 		m_close = NULL;
 		m_longRange = CandyGun::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRange->upgrade();
 		m_is_close_weapon_now = false;
 		m_weaponFileName = "CandyGun!.png";
 		m_weaponPowerCost = m_longRange->getPowerCost();
@@ -184,6 +269,8 @@ void Player::chooseWeapon()
 	{
 		m_longRange = NULL;
 		m_close = GoldenSword::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_close->upgrade();
 		m_is_close_weapon_now = true;
 		m_weaponFileName = "GoldenSword!.png";
 		m_weaponPowerCost = m_close->getPowerCost();
@@ -193,6 +280,8 @@ void Player::chooseWeapon()
 	{
 		m_close = NULL;
 		m_longRange =RPG::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRange->upgrade();
 		m_is_close_weapon_now = false;
 		m_weaponFileName = "Fist_of_Heaven.png";
 		m_weaponPowerCost = m_longRange->getPowerCost();
@@ -202,6 +291,8 @@ void Player::chooseWeapon()
 	{
 		m_close = NULL;
 		m_longRange = Shotgun::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRange->upgrade();
 		m_is_close_weapon_now = false;
 		m_weaponFileName = "Rifle&Shotgun.png";
 		m_weaponPowerCost = m_longRange->getPowerCost();
@@ -211,6 +302,8 @@ void Player::chooseWeapon()
 	{
 		m_close = NULL;
 		m_longRange = Pistol::create();
+		if (m_isUpgrate[m_numWeapon - 1] == true)
+			m_longRange->upgrade();
 		m_is_close_weapon_now = false;
 		m_weaponFileName = "pistol.png";
 		m_weaponPowerCost = m_longRange->getPowerCost();
@@ -224,7 +317,7 @@ void Player::determineWhichWeapon()
 	chooseWeapon();
 	if (m_longRange != NULL && m_close == NULL)
 	{
-		m_longRange->setPosition(0, -15);
+		m_longRange->setPosition(0, -5);
 		m_longRange->bindMap(m_map);
 		this->addChild(m_longRange);
 	    _eventDispatcher->addEventListenerWithSceneGraphPriority(m_listener, this);
@@ -232,7 +325,7 @@ void Player::determineWhichWeapon()
 	}
 	else
 	{
-		m_close->setPosition(0, -15);
+		m_close->setPosition(0, -9);
 		m_close->bindMap(m_map);
 		this->addChild(m_close);
 		_eventDispatcher->addEventListenerWithSceneGraphPriority(m_listener, this);
@@ -261,18 +354,14 @@ void Player::loadLongRangeListener()
 	};
 	listener->onTouchEnded = [longRange,this](Touch* touch, Event* event)
 	{
-		if (m_is_attacking)
-		{
-			return;
-		}
 		Point pos = Director::getInstance()->convertToGL(touch->getLocationInView());
 
 		if (m_iNowMp >= longRange->getPowerCost())
 		{
 			m_is_attacking = true;
-			longRange->attack(pos);
+
 			//call back to change attack status
-			auto attack_delay = DelayTime::create(longRange->getAttackSpeed());
+			auto attack_delay = DelayTime::create(m_longRange->getAttackSpeed());
 			auto callback = CallFunc::create(
 				[this]() {
 				m_is_attacking = false;
@@ -280,10 +369,11 @@ void Player::loadLongRangeListener()
 			);
 			auto attack = Sequence::create(attack_delay, callback, NULL);
 			this->runAction(attack);
+			longRange->attack(pos);
 			//this->hit(2);
 			this->mpDepletion(longRange->getPowerCost());
 		}
-		if (pos.x < 1024 / 2)//å±å¹•ä¸€åŠå¤§å°
+		if (pos.x < 1024 / 2)//ÆÁÄ»Ò»°ë´óÐ¡
 		{
 			setRightToward();
 		}
@@ -346,7 +436,7 @@ void Player::loadCloseWeaponListener()
 			//this->hit(2);
 			this->mpDepletion(closeWeapon->getPowerCost());
 		}
-		if (pos.x < 1024 / 2)//å±å¹•ä¸€åŠå¤§å°
+		if (pos.x < 1024 / 2)//ÆÁÄ»Ò»°ë´óÐ¡
 		{
 			setRightToward();
 		}

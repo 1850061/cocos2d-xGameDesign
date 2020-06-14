@@ -3,18 +3,13 @@
 
 Weapon::Weapon()
 {
-
+	m_power_cost = 0;
+	m_range = 0;
+	m_attack_speed = 1.0f;
 }
 
 bool Weapon::init()
 {
-	if (!Entity::init())
-	{
-		return false;
-	}
-	m_power_cost = 0;
-	m_range = 0;
-	m_attack_speed = 0.6f; 
 	return true;
 }
 

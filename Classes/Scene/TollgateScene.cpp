@@ -1,8 +1,9 @@
-﻿#include <string>
+#include <string>
 #include "Scene/TollgateScene.h"
 #include "Scene/PauseScene.h"
 #include "Scene/HomeScene.h"
 #include "Entity/Item/Player/Priest/Priest.h"
+#include "Entity\Weapons\Shotgun.h"
 #include "Entity/Weapons/Bullets/ExplosiveBullet.h"
 #include "Entity/Weapons/RPG.h"
 #include "Entity\Weapons\GoldenSword.h"
@@ -10,7 +11,6 @@
 #include "GameData.h"
 
 USING_NS_CC;
-
 
 Scene* TollgateScene::createScene()
 {
@@ -24,14 +24,14 @@ Scene* TollgateScene::createScene()
 void TollgateScene::loadMap()
 {
 	m_map = AdventureMapLayer::create();
-	this->addChild(m_map, 0, 100);//娓告垙鍦板浘 tag涓?00
+	this->addChild(m_map, 0, 100);//游戏地图 tag�?00
 
 }
 
 void TollgateScene::addPlayer()
 {
-	TMXObjectGroup* group = m_map->getMap()->getObjectGroup("objects");//鑾峰彇瀵硅薄灞?
-	ValueMap spawnPoint = group->getObject("hero");//鏍规嵁hero瀵硅薄鐨勪綅缃斁缃簿鐏?
+	TMXObjectGroup* group = m_map->getMap()->getObjectGroup("objects");//获取对象�?
+	ValueMap spawnPoint = group->getObject("hero");//根据hero对象的位置放置精�?
 	float x = spawnPoint["x"].asFloat();
 	float y = spawnPoint["y"].asFloat();
 	m_player = Ranger::create();
@@ -57,8 +57,8 @@ void TollgateScene::addWeapon()
 	m_player->setWeapon(str);
 	m_player->determineWhichWeapon();
 	str = "CandyGun!";
-	/*m_player->setWeapon(str);
-	m_player->determineWhichWeapon();*/
+	m_player->setWeapon(str);
+	m_player->determineWhichWeapon();
 }
 
 void TollgateScene::loadController()
@@ -70,7 +70,7 @@ void TollgateScene::loadController()
 	this->addChild(playerController);
 	m_player->setController(playerController);
 	playerController->setPlayer(m_player);
-	playerController->setIsRanger(typeid(*m_player) == typeid(Ranger));//浠ュ悗涓巑emberSelect缁撳悎
+	playerController->setIsRanger(typeid(*m_player) == typeid(Ranger));//以后与memberSelect结合
 	playerController->setStandAnimate(animate);
 
 }
@@ -173,15 +173,15 @@ void TollgateScene::loadMonsters()
 {
 	auto playerPos = m_player->getPosition();
 	auto roomCoord = m_map->roomCoordFromPosition(playerPos);
-	//绑定房间
+	//�󶨷���
 	m_monsterMgr = MonsterManager::create();
-	//设置位置
+	//����λ��
 	auto midPoint = GameData::getCoord()[static_cast<int>(5 * roomCoord.x + roomCoord.y)];
 	midPoint.y = 186 - midPoint.y;
 	auto LUPoint = (midPoint + ccp(-10, -10)) * 32;
 	m_monsterMgr->setPosition(LUPoint);
 
-	//初始化工作
+	//��ʼ������
 	m_monsterMgr->bindMap(m_map);
 	m_monsterMgr->bindPlayer(static_cast<Entity*>(this->m_player));
 	m_map->addChild(m_monsterMgr, 2);
@@ -210,7 +210,7 @@ void TollgateScene::loadListeners()
 			}
 			else if (ccpDistance(m_player->getPosition(), m_map->getShop()->getPosition()) < 20.0f)
 			{
-				if (m_map->getShop()->getInteractionNum() == 1)//第一次互动
+				if (m_map->getShop()->getInteractionNum() == 1)//��һ�λ���
 				{
 					m_map->getShop()->setInteractionNum(2);
 					m_map->getShop()->showFlowWordFirstMeet();
@@ -307,16 +307,16 @@ void TollgateScene::updateMiniMap(TMXTiledMap* miniMap)
 		return;
 	}
 
-	miniMapLayer->setTileGID(2, 2 * GameData::getLastRoomCoord());//浅灰
-	miniMapLayer->setTileGID(1, 2 * Vec2(roomCoord.y, roomCoord.x));//深灰
+	miniMapLayer->setTileGID(2, 2 * GameData::getLastRoomCoord());//ǳ��
+	miniMapLayer->setTileGID(1, 2 * Vec2(roomCoord.y, roomCoord.x));//���
 
 	if (GameData::getLastRoomCoord() != Vec2(roomCoord.y, roomCoord.x))
 	{
-		if (GameData::getLastRoomCoord().x == roomCoord.y)//上下相连
+		if (GameData::getLastRoomCoord().x == roomCoord.y)//��������
 		{
 			miniMapLayer->setTileGID(4, GameData::getLastRoomCoord() + Vec2(roomCoord.y, roomCoord.x));
 		}
-		else//左右相连
+		else//��������
 		{
 			miniMapLayer->setTileGID(3, GameData::getLastRoomCoord() + Vec2(roomCoord.y, roomCoord.x));
 		}
@@ -366,18 +366,18 @@ void TollgateScene::update(float dt)
 
 	updateCoinNum();
 
-	auto roomCoord = m_map->roomCoordFromPosition(playerPos);//鎴块棿鍧愭爣
-	auto roomNum = roomCoord.x * 5 + roomCoord.y;//鎴块棿搴忓彿
+	auto roomCoord = m_map->roomCoordFromPosition(playerPos);//房间坐标
+	auto roomNum = roomCoord.x * 5 + roomCoord.y;//房间序号
 
-	if (m_map->isMonsterRoom(roomCoord)	//首先它得是个怪物房间
-		&& !m_monsterMgr->isRoomVisited(roomCoord))//其次它没有被到访过
+	if (m_map->isMonsterRoom(roomCoord)	//���������Ǹ����﷿��
+		&& !m_monsterMgr->isRoomVisited(roomCoord))//�����û�б����ù�
 	{
 		m_monsterMgr->setCurRoom(roomCoord);
 		loadMonstersInNewRoom(2);
 	}
-	Vec2 dir[4] = { {0,1},{0,-1},{1,0},{-1,0} };//鍥涗釜鏂瑰悜
+	Vec2 dir[4] = { {0,1},{0,-1},{1,0},{-1,0} };//四个方向
 
-	if (true)//杩涘叆鏈夋€墿鐨勬埧闂达紝寮€濮嬫垬鏂?
+	if (true)//进入有怪物的房间，开始战�?
 	{
 		miniMap->setVisible(false);
 		std::vector<int>dirVec;
@@ -397,7 +397,7 @@ void TollgateScene::update(float dt)
 			AdventureMapLayer::switchGate(wall, barrier, roomNum, elem, true);
 		}
 		//auto t = time(nullptr);
-		if (m_monsterMgr->isGameOver())//缁撴潫鎴樻枟
+		if (m_monsterMgr->isGameOver())//结束战斗
 		{
 			for (auto elem : dirVec)
 			{
@@ -407,7 +407,7 @@ void TollgateScene::update(float dt)
 		}
 	}
 
-	//碰撞检测
+	//��ײ���
 	auto player_bullet = m_player->getBullet();
 	auto monsters_bullet = m_monsterMgr->getMonsterBullets();
 	auto monsters = m_monsterMgr->getMonster();
@@ -539,7 +539,7 @@ void TollgateScene::update(float dt)
 		}
 	}
 
-	//小金币和小蓝的自动拾取
+	//С��Һ�С�����Զ�ʰȡ
 	for (auto coin : m_map->getCoinList())
 	{
 		if (coin->isUsed())

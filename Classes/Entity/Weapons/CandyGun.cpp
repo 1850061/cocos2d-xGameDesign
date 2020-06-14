@@ -1,4 +1,4 @@
-﻿#include "Entity\Weapons\CandyGun.h"
+#include "Entity\Weapons\CandyGun.h"
 
 CandyGun::CandyGun()
 {

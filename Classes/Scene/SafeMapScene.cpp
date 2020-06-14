@@ -1,4 +1,4 @@
-ï»¿#include "SafeMapScene.h"
+#include "SafeMapScene.h"
 #include "AdventureMapScene.h"
 #include "Scene/TollgateScene.h"
 #include "Scene/PlayerChoose.h"
@@ -25,34 +25,34 @@ bool SafeMapLayer::init()
 
     this->scheduleUpdate();
 
-    m_tileMap = TMXTiledMap::create("map/SafeMap.tmx");//åˆ›å»ºåœ°å›¾
+    m_tileMap = TMXTiledMap::create("map/SafeMap.tmx");//´´½¨µØÍ¼
     this->addChild(m_tileMap);
 
-    m_collidable = m_tileMap->getLayer("barrier");//èŽ·å–åˆ¤æ–­ç¢°æ’žçš„éšœç¢å±‚
+    m_collidable = m_tileMap->getLayer("barrier");//»ñÈ¡ÅÐ¶ÏÅö×²µÄÕÏ°­²ã
 
-    TMXObjectGroup* group = m_tileMap->getObjectGroup("objects");//èŽ·å–å¯¹è±¡å±‚
-    ValueMap spawnPoint = group->getObject("hero");//æ ¹æ®heroå¯¹è±¡çš„ä½ç½®æ”¾ç½®ç²¾çµ
+    TMXObjectGroup* group = m_tileMap->getObjectGroup("objects");//»ñÈ¡¶ÔÏó²ã
+    ValueMap spawnPoint = group->getObject("hero");//¸ù¾Ýhero¶ÔÏóµÄÎ»ÖÃ·ÅÖÃ¾«Áé
 
     float x = spawnPoint["x"].asFloat();
     float y = spawnPoint["y"].asFloat();
 
     m_player = Sprite::create("map/hero.png");
     m_player->setPosition(Vec2(x, y));
-    this->addChild(m_player);//æ¸¸æˆäººç‰©
+    this->addChild(m_player);//ÓÎÏ·ÈËÎï
 
-	auto player_choose_layer = PlayerChoose::create();
-	PlayerInfomation mage = {
-		3,
-		5,
-		210,
-		"æ³•å¸ˆ",
-		"å¥¥æœ¯é—ªç”µ",
-		"é‡Šæ”¾å¼ºå¤§çš„é—ªç”µ\næ”»å‡»æ•Œäººï¼ï¼",
-		"mage_image.png",
-		"mage_ability.png"
-	};
-	player_choose_layer->setPlayerInformation(mage);
-	this->addChild(player_choose_layer, 2);
+    auto player_choose_layer = PlayerChoose::create();
+    PlayerInfomation mage = {
+        3,
+        5,
+        210,
+        "·¨Ê¦",
+        "°ÂÊõÉÁµç",
+        "ÊÍ·ÅÇ¿´óµÄÉÁµç\n¹¥»÷µÐÈË£¡£¡",
+        "mage_image.png",
+        "mage_ability.png"
+    };
+    player_choose_layer->setPlayerInformation(mage);
+    this->addChild(player_choose_layer, 2);
 
     return true;
 }
@@ -61,7 +61,7 @@ void SafeMapLayer::onEnter()
 {
     Layer::onEnter();
 
-    auto listener = EventListenerKeyboard::create();//åˆ›å»ºç›‘å¬äº‹ä»¶
+    auto listener = EventListenerKeyboard::create();//´´½¨¼àÌýÊÂ¼þ
 
     listener->onKeyPressed = [=](EventKeyboard::KeyCode keycode, Event* event)
     {
@@ -105,8 +105,8 @@ void SafeMapLayer::update(float dt)
     auto moveLeft = EventKeyboard::KeyCode::KEY_A;
     auto moveRight = EventKeyboard::KeyCode::KEY_D;
 
-    Vec2 offset(0, 0);//åç§»é‡
-    //æ¯å¸§ç§»åŠ¨ä¸¤ä¸ªåƒç´ 
+    Vec2 offset(0, 0);//Æ«ÒÆÁ¿
+    //Ã¿Ö¡ÒÆ¶¯Á½¸öÏñËØ
     if (m_keyMap[moveUp])
     {
         offset.y = 4;
@@ -139,28 +139,28 @@ void SafeMapLayer::update(float dt)
 
 void SafeMapLayer::setPlayerPosition(Vec2 position, int dx, int dy)
 {
-    Vec2 tileCoord = this->tileCoordFromPosition(position);//åƒç´ åæ ‡è½¬æ¢ä¸ºç“¦ç‰‡åæ ‡
+    Vec2 tileCoord = this->tileCoordFromPosition(position);//ÏñËØ×ø±ê×ª»»ÎªÍßÆ¬×ø±ê
 
-    int tileGid = m_collidable->getTileGIDAt(tileCoord);//èŽ·å¾—ç“¦ç‰‡çš„GID
+    int tileGid = m_collidable->getTileGIDAt(tileCoord);//»ñµÃÍßÆ¬µÄGID
 
-    if (tileGid != 0)//ç“¦ç‰‡æ˜¯å¦å­˜åœ¨ï¼ˆä¸å­˜åœ¨æ—¶tileGid==0ï¼‰
+    if (tileGid != 0)//ÍßÆ¬ÊÇ·ñ´æÔÚ£¨²»´æÔÚÊ±tileGid==0£©
     {
 
         auto prop = m_tileMap->getPropertiesForGID(tileGid);
         auto valueMap = prop.asValueMap();
         bool collision = valueMap["Collidable"].asBool();
-        if (collision)//ç¢°æ’žæ£€æµ‹
+        if (collision)//Åö×²¼ì²â
         {
-            m_player->setPosition(position - Vec2(dx, dy));//å›žå¼¹ï¼Œå¦åˆ™ä¼šå¡å¢™é‡Œ
+            m_player->setPosition(position - Vec2(dx, dy));//»Øµ¯£¬·ñÔò»á¿¨Ç½Àï
             return;
         }
     }
-    m_player->setPosition(position);//ç§»åŠ¨ç²¾çµ
+    m_player->setPosition(position);//ÒÆ¶¯¾«Áé
 
-    this->setViewpointCenter(m_player->getPosition());//æ»šåŠ¨åœ°å›¾
+    this->setViewpointCenter(m_player->getPosition());//¹ö¶¯µØÍ¼
 }
 
-//åƒç´ åæ ‡è½¬æ¢ä¸ºç“¦ç‰‡åæ ‡
+//ÏñËØ×ø±ê×ª»»ÎªÍßÆ¬×ø±ê
 cocos2d::Vec2 SafeMapLayer::tileCoordFromPosition(cocos2d::Vec2 pos)
 {
     int x = pos.x / m_tileMap->getTileSize().width;
@@ -169,14 +169,14 @@ cocos2d::Vec2 SafeMapLayer::tileCoordFromPosition(cocos2d::Vec2 pos)
     return Vec2(x, y);
 }
 
-//å°†äººç‰©ä¿æŒåœ¨å±å¹•ä¸­é—´
+//½«ÈËÎï±£³ÖÔÚÆÁÄ»ÖÐ¼ä
 void SafeMapLayer::setViewpointCenter(cocos2d::Vec2 position)
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
 
-    Vec2 centerPoint = Vec2(visibleSize.width / 2, visibleSize.height / 2);//å±å¹•çš„ä¸­ç‚¹
+    Vec2 centerPoint = Vec2(visibleSize.width / 2, visibleSize.height / 2);//ÆÁÄ»µÄÖÐµã
 
-    Vec2 offset = centerPoint - position;//åç§»é‡
+    Vec2 offset = centerPoint - position;//Æ«ÒÆÁ¿
 
     this->setPosition(offset);
 }

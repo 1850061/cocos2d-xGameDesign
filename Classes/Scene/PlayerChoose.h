@@ -20,7 +20,7 @@ struct PlayerInfomation
 	std::string ability_image_file;
 };
 
-class PlayerChoose:public Layer
+class PlayerChoose :public Layer
 {
 public:
 	virtual bool init();
