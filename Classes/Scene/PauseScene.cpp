@@ -34,7 +34,7 @@ void PauseScene::backToHomeMenu(Ref*, TouchEventType type)
 	{
 	case TOUCH_EVENT_ENDED:
 		Director::getInstance()->popScene();
-		Director::getInstance()->replaceScene(HomeMenuLayer::createScene());
+		Director::getInstance()->pushScene(HomeMenuLayer::createScene());
 		break;
 	}
 }
